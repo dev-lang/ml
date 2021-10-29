@@ -5,6 +5,7 @@
 
 import cv2
 import mediapipe as mp
+import numpy as np
 
 cv = cv2
 
@@ -17,7 +18,7 @@ holisticv = mp_holistic.Holistic
 abririmagen = cv2.imread
 mostrarimagen = cv.imshow
 #srcimg = "francordi2.jpg"
-srcimg = "image.jpeg"
+srcimg = "proy.jpg"
 colorCv = cv2.cvtColor
 colorCvConfig = cv2.COLOR_BGR2RGB
 
@@ -29,6 +30,23 @@ COLOR_RO = (128, 0, 255)
 
 RADIO_CIRC = int(4)
 ALT_RADIO_CIRC = int(3)
+ESCALA = (468, 702)
+
+def cv_size():
+    imaori = abririmagen(srcimg)
+    #global srcimg
+    return tuple(imaori.shape[1::-1])
+
+ESCALA_ORI = cv_size()
+
+print("Tamaño de imagen original:", ESCALA_ORI, "\nTamaño Establecido:", ESCALA)
+
+if ESCALA < ESCALA_ORI:
+    print("El tamaño establecido es menor al de la imagen original")
+elif ESCALA > ESCALA_ORI:
+    print("El tamaño establecido es mayor al de la imagen original")
+elif ESCALA == ESCALA_ORI:
+    print("La escala y el tamaño de imagen usado coinciden")
 
 Modo = "Imagen"
 MatPlot = "1"
@@ -63,7 +81,7 @@ def RenderHolistic():
         model_complexity=2) as holistic:
 
         ima = abririmagen(srcimg)
-        frame = cv2.resize(ima, (468, 702))
+        frame = cv2.resize(ima, ESCALA)
         frame_rgb = colorCv(frame, colorCvConfig)
 
         resultado = holistic.process(frame_rgb)
@@ -97,6 +115,7 @@ def RenderHolistic():
         mostrarimagen("imagen", frame)
 
         if MatPlot == "1":
+            print("Se ha activado la representación gráfica")
             RenderMathplotLibCords()
         elif MatPlot == "0":
             print("No se ha activado la representación gráfica")
