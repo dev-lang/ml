@@ -1,5 +1,7 @@
 #mediapipe
 #deteccion cuerpo entero - implementación en imágenes estáticas
+# captura en video y webcam
+# fix deteccion de rostro (funcion perdida al haber actualizado el codigo)
 
 #module: https://google.github.io/mediapipe/solutions/holistic
 
@@ -22,6 +24,7 @@ mostrarimagen = cv.imshow
 
 srcimg = "proy.jpg"         # imagen estatica
 video = cv2.VideoCapture("video.mp4") # video (definir como numero para usar la cámara como source, por ejemplo 0)
+camara = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 colorCv = cv2.cvtColor
 colorCvConfig = cv2.COLOR_BGR2RGB
@@ -86,6 +89,13 @@ def FuncionAEjecutar(inputData, endData):
     # frame -> imagen
     # vframe -> video
 
+    # FACE_TESSELATION (a.k.a CONNECTIONS)
+
+    mp_dibujo.draw_landmarks(
+        inputData, endData.face_landmarks, mp_holistic.FACEMESH_TESSELATION,
+        mp_dibujo.DrawingSpec(color=COLOR_AZ, thickness=1, circle_radius=RADIO_CIRC),
+        mp_dibujo.DrawingSpec(color=COLOR_NA, thickness=1))
+
     # MANOS
     mp_dibujo.draw_landmarks(
         inputData, endData.left_hand_landmarks, Mano.conexiones,
@@ -135,7 +145,7 @@ def RenderHolistic():
             print("La variable MatPlot no está configurada correctamente.\nSolo se acepta un valor binario.")
             pass
 
-def RenderVideoHolistic():  # futura implementación para video en lugar de imagen
+def RenderVideoHolistic(inputto):  # video = video, camara = webcam o dispositivo de entrada
     global results
     global Modo
     Modo = "video"
@@ -144,7 +154,7 @@ def RenderVideoHolistic():  # futura implementación para video en lugar de imag
         model_complexity=2) as holistic:
 
         while True:
-            ret, vframe = video.read()
+            ret, vframe = inputto.read()
             if ret == False:
                 break
             frame_rgb = cv2.cvtColor(vframe, cv2.COLOR_BGR2RGB)
@@ -155,8 +165,8 @@ def RenderVideoHolistic():  # futura implementación para video en lugar de imag
                 break
 
 
-RenderHolistic()
-#RenderVideoHolistic()
+#RenderHolistic()
+RenderVideoHolistic(camara)
 
 # La funcion de Video tiene mucha lentitud en equipos donde TensorFlow ->
 # se ejecuta en CPU.
